@@ -100,23 +100,26 @@ theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
     (a + 1) / b = a / b + 1 := by
   replace h := mod_eq_zero_of_dvd h
   cases b with
-  | zero => simp at h
+  | zero => simp only [mod_zero, Nat.add_eq_zero_iff, succ_ne_self, and_false] at h
   | succ b =>
-    by_cases h' : b ≤ a
-    · rw [Nat.div_eq]
+    apply @Decidable.byCases (b ≤ a)
+    · intro h'
+      rw [Nat.div_eq]
       simp only [zero_lt_succ, Nat.add_le_add_iff_right, h', and_self, ↓reduceIte,
         Nat.reduceSubDiff, Nat.add_right_cancel_iff]
       obtain ⟨_|k, h⟩ := Nat.dvd_of_mod_eq_zero h
-      · simp at h
+      · simp only [Nat.mul_zero, Nat.add_eq_zero_iff, succ_ne_self, and_false] at h
       · simp only [Nat.mul_add, Nat.add_mul, Nat.one_mul, Nat.mul_one, ← Nat.add_assoc,
           Nat.add_right_cancel_iff] at h
         subst h
-        rw [Nat.add_sub_cancel, ← Nat.add_one_mul, mul_div_right _ (zero_lt_succ _), Nat.add_comm,
-          Nat.add_mul_div_left _ _ (zero_lt_succ _), Nat.right_eq_add, div_eq_of_lt le.refl]
-    · simp only [Nat.not_le] at h'
+        rw [Nat.add_sub_cancel, ← Nat.add_one_mul, mul_div_right _ (zero_lt_succ _),
+          Nat.add_comm, Nat.add_mul_div_left _ _ (zero_lt_succ _), div_eq_of_lt
+          le.refl, Nat.zero_add]
+    · intro h'
+      simp only [Nat.not_le] at h'
       replace h' : a + 1 < b + 1 := Nat.add_lt_add_right h' 1
       rw [Nat.mod_eq_of_lt h'] at h
-      simp at h
+      simp only [Nat.add_eq_zero_iff, succ_ne_self, and_false] at h
 
 theorem succ_div_of_mod_eq_zero {a b : Nat} (h : (a + 1) % b = 0) :
     (a + 1) / b = a / b + 1 := by
